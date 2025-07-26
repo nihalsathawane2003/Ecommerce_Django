@@ -1,0 +1,45 @@
+<!-- templates/websocket_test.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Order Test</title>
+</head>
+<body>
+    <h2>Order Status Updates</h2>
+
+    <label for="statusInput">Update Status:</label>
+    <input type="text" id="statusInput" placeholder="e.g., Shipped, Delivered">
+    <button onclick="sendStatus()">Send</button>
+
+    <ul id="messages"></ul>
+
+    <script>
+        const orderId = 1; // Replace with dynamic ID in production
+        const socket = new WebSocket("ws://127.0.0.1:8000/ws/orders/1/");
+
+
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const status = data.status;
+            const li = document.createElement("li");
+            li.innerText = `Order Update: ${status}`;
+            document.getElementById("messages").appendChild(li);
+        };
+
+        socket.onopen = function() {
+            console.log("WebSocket connected.");
+        };
+
+        socket.onclose = function() {
+            console.log("WebSocket disconnected.");
+        };
+
+        function sendStatus() {
+            const input = document.getElementById("statusInput");
+            const status = input.value;
+            socket.send(JSON.stringify({ 'status': status }));
+            input.value = "";
+        }
+    </script>
+</body>
+</html>
